@@ -1,0 +1,1427 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Trip Planner</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --cream:      #FAF6EF;
+    --cream-deep: #F2EBDF;
+    --ink:        #2B241E;
+    --ink-mid:    #5C4F44;
+    --ink-light:  #9B8E81;
+    --border:     #E5DFD4;
+    --row-alt:    #F7F3EC;
+    --tip-bg:     #F0EAE0;
+
+    --terracotta: #B4513A;
+    --terra-bg:   #F6E7DF;
+    --sage:       #6B7F5C;
+    --sage-bg:    #E8EBDF;
+    --amber:      #8B5A2B;
+    --amber-bg:   #F4E8D6;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--cream);
+    color: var(--ink);
+    line-height: 1.6;
+  }
+
+  .layout {
+    display: grid;
+    grid-template-columns: 260px 1fr;
+    min-height: 100vh;
+  }
+
+  /* SIDEBAR */
+  .sidebar {
+    background: var(--ink);
+    color: white;
+    padding: 2rem 1.5rem;
+    position: sticky;
+    top: 0;
+    height: 100vh;
+    overflow-y: auto;
+  }
+
+  .sidebar-title {
+    font-family: 'DM Serif Display', serif;
+    font-size: 1.3rem;
+    color: white;
+    margin-bottom: 6px;
+    letter-spacing: -0.01em;
+  }
+
+  .sidebar-sub {
+    font-size: 11px;
+    color: #B8A89A;
+    margin-bottom: 2rem;
+    line-height: 1.6;
+    font-style: italic;
+  }
+
+  .nav-section { margin-bottom: 1.75rem; }
+
+  .nav-label {
+    font-size: 9px;
+    font-weight: 600;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: #8A7968;
+    margin-bottom: 10px;
+  }
+
+  .nav-link {
+    display: block;
+    padding: 8px 12px;
+    border-radius: 6px;
+    font-size: 13px;
+    color: #D6C7B8;
+    text-decoration: none;
+    margin-bottom: 2px;
+    transition: background 0.15s, color 0.15s, padding-left 0.15s;
+    cursor: pointer;
+    border: none;
+    background: transparent;
+    width: 100%;
+    text-align: left;
+    font-family: inherit;
+  }
+
+  .nav-link:hover {
+    background: #3A322A;
+    color: white;
+    padding-left: 16px;
+  }
+
+  .nav-link.active {
+    background: #3A322A;
+    color: white;
+    border-left: 2px solid var(--terracotta);
+    padding-left: 14px;
+  }
+
+  .sidebar-footer {
+    margin-top: 2rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid #3A322A;
+    font-size: 11px;
+    color: #8A7968;
+    line-height: 1.6;
+  }
+
+  /* MAIN */
+  .main {
+    padding: 3rem 3.5rem 6rem;
+    max-width: 920px;
+  }
+
+  .page-header {
+    margin-bottom: 3rem;
+    padding-bottom: 2rem;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .page-eyebrow {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--terracotta);
+    margin-bottom: 12px;
+  }
+
+  .page-title {
+    font-family: 'DM Serif Display', serif;
+    font-size: 3rem;
+    color: var(--ink);
+    margin-bottom: 10px;
+    line-height: 1.05;
+    letter-spacing: -0.015em;
+  }
+
+  .page-title em {
+    font-style: italic;
+    color: var(--terracotta);
+  }
+
+  .page-sub {
+    font-size: 15px;
+    color: var(--ink-mid);
+    max-width: 620px;
+    line-height: 1.7;
+  }
+
+  .section {
+    margin-bottom: 4rem;
+    scroll-margin-top: 2rem;
+  }
+
+  .section-title {
+    font-family: 'DM Serif Display', serif;
+    font-size: 1.75rem;
+    color: var(--ink);
+    margin-bottom: 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    letter-spacing: -0.01em;
+  }
+
+  .section-num {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: var(--ink);
+    color: white;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+
+  .section-intro {
+    font-size: 14px;
+    color: var(--ink-light);
+    font-style: italic;
+    margin-bottom: 1.5rem;
+    margin-left: 46px;
+  }
+
+  /* TABLE */
+  .table-wrap {
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+    background: white;
+  }
+
+  .t {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+  }
+
+  .t th {
+    text-align: left;
+    padding: 12px 16px;
+    background: var(--ink);
+    color: white;
+    font-weight: 500;
+    font-size: 11.5px;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+  }
+
+  .t td {
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--border);
+    color: var(--ink-mid);
+    vertical-align: middle;
+  }
+
+  .t tr:last-child td { border-bottom: none; }
+  .t tr:nth-child(even) td { background: var(--row-alt); }
+
+  .t a {
+    color: var(--terracotta);
+    text-decoration: none;
+    font-weight: 500;
+    border-bottom: 1px dotted var(--terracotta);
+    padding-bottom: 1px;
+  }
+  .t a:hover { border-bottom-style: solid; }
+
+  /* Make the route + date columns prominent — they're what people actually look at */
+  .t td:nth-child(3),
+  .t td:nth-child(4) {
+    font-size: 14px;
+    color: var(--ink);
+    font-weight: 500;
+  }
+  .t td:nth-child(3) {
+    font-family: 'DM Serif Display', serif;
+    font-weight: 400;
+    font-size: 15px;
+  }
+
+  .badge {
+    display: inline-block;
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding: 3px 8px;
+    border-radius: 4px;
+  }
+  .badge-train  { background: var(--sage-bg); color: var(--sage); }
+  .badge-flight { background: var(--terra-bg); color: var(--terracotta); }
+  .badge-bus    { background: var(--amber-bg); color: var(--amber); }
+
+  /* STAY CARDS */
+  .stay-card {
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    background: white;
+    margin-bottom: 1.5rem;
+    overflow: hidden;
+  }
+
+  .stay-head {
+    padding: 1.25rem 1.5rem 1rem;
+    border-bottom: 1px solid var(--border);
+    background: linear-gradient(180deg, #FDFBF7 0%, white 100%);
+  }
+
+  .stay-tag {
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--terracotta);
+    margin-bottom: 6px;
+  }
+
+  .stay-name {
+    font-family: 'DM Serif Display', serif;
+    font-size: 1.4rem;
+    color: var(--ink);
+    margin-bottom: 4px;
+    letter-spacing: -0.01em;
+  }
+
+  .stay-meta {
+    font-size: 12.5px;
+    color: var(--ink-light);
+    font-style: italic;
+  }
+
+  .stay-body {
+    padding: 1.25rem 1.5rem;
+    display: grid;
+    grid-template-columns: 140px 1fr;
+    gap: 10px 20px;
+    font-size: 13px;
+  }
+
+  .stay-body dt {
+    font-weight: 600;
+    color: var(--ink);
+    font-size: 11px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    padding-top: 2px;
+  }
+
+  .stay-body dd {
+    color: var(--ink-mid);
+    line-height: 1.6;
+  }
+
+  .stay-body a {
+    color: var(--terracotta);
+    text-decoration: none;
+    font-weight: 500;
+    border-bottom: 1px dotted var(--terracotta);
+    padding-bottom: 1px;
+  }
+  .stay-body a:hover { border-bottom-style: solid; }
+
+  .stay-footer {
+    padding: 0.75rem 1.5rem;
+    background: var(--cream);
+    border-top: 1px solid var(--border);
+    font-size: 12px;
+    color: var(--ink-light);
+    display: flex;
+    gap: 18px;
+    flex-wrap: wrap;
+  }
+
+  .stay-footer a {
+    color: var(--ink-mid);
+    text-decoration: none;
+    font-weight: 500;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+  }
+  .stay-footer a:hover { color: var(--terracotta); }
+
+  /* TIP / CALLOUT */
+  .callout {
+    background: var(--tip-bg);
+    border-radius: 10px;
+    padding: 1rem 1.25rem;
+    margin: 1.5rem 0;
+    display: flex;
+    gap: 14px;
+    align-items: flex-start;
+  }
+
+  .callout-icon {
+    font-family: 'DM Serif Display', serif;
+    font-size: 1.5rem;
+    color: var(--terracotta);
+    line-height: 1;
+    flex-shrink: 0;
+    font-style: italic;
+  }
+
+  .callout-body {
+    font-size: 13px;
+    color: var(--ink-mid);
+    line-height: 1.65;
+  }
+
+  .callout-body strong {
+    color: var(--ink);
+    font-weight: 600;
+  }
+
+  /* ROUTE / CITIES — editorial flowing list */
+  .route {
+    position: relative;
+    padding-left: 32px;
+  }
+
+  .route::before {
+    content: '';
+    position: absolute;
+    left: 11px;
+    top: 8px;
+    bottom: 8px;
+    width: 1px;
+    background: var(--border);
+  }
+
+  .route-stop {
+    position: relative;
+    padding: 1rem 0 1.25rem;
+    border-bottom: 1px solid var(--border);
+  }
+  .route-stop:last-child { border-bottom: none; padding-bottom: 0; }
+
+  .route-stop::before {
+    content: '';
+    position: absolute;
+    left: -26px;
+    top: 1.35rem;
+    width: 9px;
+    height: 9px;
+    border-radius: 50%;
+    background: var(--cream);
+    border: 2px solid var(--terracotta);
+  }
+
+  .route-city {
+    font-family: 'DM Serif Display', serif;
+    font-size: 1.2rem;
+    color: var(--ink);
+    margin-bottom: 4px;
+  }
+
+  .route-dates {
+    font-size: 12px;
+    color: var(--ink-light);
+    font-style: italic;
+    margin-bottom: 6px;
+  }
+
+  .route-note {
+    font-size: 13px;
+    color: var(--ink-mid);
+    line-height: 1.6;
+  }
+
+  .route-phase-header {
+    margin: 1.5rem 0 0.5rem;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .route-phase-header:first-child { margin-top: 0; }
+
+  .route-phase-tag {
+    display: inline-block;
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    padding: 4px 10px;
+    border-radius: 4px;
+  }
+  .route-phase-tag.group { background: var(--sage-bg); color: var(--sage); }
+  .route-phase-tag.solo  { background: var(--terra-bg); color: var(--terracotta); }
+
+  .route-phase-line {
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+  }
+
+  .route-phase-note {
+    font-size: 11.5px;
+    color: var(--ink-light);
+    font-style: italic;
+  }
+
+  /* CALENDAR STRIP */
+  .calendar-section {
+    margin-bottom: 3rem;
+    padding-bottom: 2rem;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .calendar-label {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--ink-light);
+    margin-bottom: 14px;
+  }
+
+  .cal-strip {
+    display: grid;
+    grid-template-columns: repeat(13, minmax(0, 1fr));
+    gap: 6px;
+  }
+
+  .cal-day {
+    aspect-ratio: 1 / 1.25;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    background: white;
+    color: var(--ink-mid);
+    cursor: default;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-between;
+    padding: 8px 4px;
+    font-family: 'DM Sans', sans-serif;
+    position: relative;
+    transition: transform 0.12s, box-shadow 0.12s, border-color 0.12s;
+    text-decoration: none;
+    overflow: hidden;
+  }
+
+  .cal-day-top {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    line-height: 1;
+  }
+
+  .cal-day-num {
+    font-family: 'DM Serif Display', serif;
+    font-size: 22px;
+    line-height: 1;
+    color: var(--ink);
+  }
+
+  .cal-day-mo {
+    font-size: 9px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--ink-light);
+    margin-top: 4px;
+  }
+
+  .cal-day-tag {
+    font-size: 10px;
+    letter-spacing: 0.04em;
+    color: var(--ink-mid);
+    text-transform: uppercase;
+    font-weight: 600;
+    line-height: 1.1;
+    text-align: center;
+  }
+
+  .cal-day-icons {
+    display: flex;
+    justify-content: center;
+    gap: 3px;
+    font-size: 13px;
+    line-height: 1;
+    color: var(--ink-mid);
+    opacity: 0.75;
+    height: 14px;
+  }
+
+  /* color by city — bolder, more saturated */
+  .cal-day.city-berlin    { background: #F5DCC0; border-color: #C99966; }
+  .cal-day.city-train     { background: #E5D8C2; border-color: #A89373; }
+  .cal-day.city-hallstatt { background: #D2DCB8; border-color: #8AA068; }
+  .cal-day.city-vienna    { background: #F4CFA8; border-color: #C28A56; }
+  .cal-day.city-dubrovnik { background: #ECC0AB; border-color: #B47057; }
+  .cal-day.city-solo      { background: #E8E0CE; border-color: #A89978; border-style: dashed; }
+  .cal-day.city-prague    { background: #DCC9A4; border-color: #A28858; }
+  .cal-day.city-home      { background: #DCC9AB; border-color: #9C8460; }
+
+  .cal-day.is-link { cursor: pointer; }
+  .cal-day.is-link:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 14px -6px rgba(43, 36, 30, 0.25);
+    border-color: var(--terracotta);
+  }
+
+  .cal-day.is-link:hover .cal-day-num { color: var(--terracotta); }
+
+  .cal-legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 14px;
+    margin-top: 14px;
+    font-size: 11px;
+    color: var(--ink-mid);
+  }
+
+  .cal-legend-item {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .cal-legend-swatch {
+    width: 12px;
+    height: 12px;
+    border-radius: 3px;
+    border: 1px solid var(--border);
+  }
+
+  /* flight row highlight when scrolled-to */
+  tr.flash-row td {
+    animation: rowFlash 1.6s ease-out;
+  }
+
+  @keyframes rowFlash {
+    0%   { background-color: var(--terra-bg); }
+    100% { background-color: transparent; }
+  }
+
+  /* stay card highlight when scrolled-to */
+  .stay-card.flash-card {
+    animation: cardFlash 1.6s ease-out;
+  }
+
+  @keyframes cardFlash {
+    0%   { box-shadow: 0 0 0 3px var(--terracotta); }
+    100% { box-shadow: 0 0 0 0 transparent; }
+  }
+
+  @media (max-width: 900px) {
+    .cal-strip {
+      grid-template-columns: repeat(7, minmax(0, 1fr));
+      gap: 4px;
+    }
+    .cal-day-num { font-size: 18px; }
+    .cal-day-tag { font-size: 9px; }
+    .cal-day-icons { bottom: 20px; font-size: 11px; }
+  }
+
+  /* DRIVE FOLDER GRID */
+  .folder-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 14px;
+    margin-top: 1rem;
+  }
+
+  .folder-card {
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 1.25rem;
+    background: white;
+    text-decoration: none;
+    color: inherit;
+    display: block;
+    transition: border-color 0.15s, transform 0.15s, box-shadow 0.15s;
+  }
+
+  .folder-card:hover {
+    border-color: var(--terracotta);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px -8px rgba(180, 81, 58, 0.25);
+  }
+
+  .folder-tag {
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--terracotta);
+    margin-bottom: 6px;
+  }
+
+  .folder-name {
+    font-family: 'DM Serif Display', serif;
+    font-size: 1.1rem;
+    color: var(--ink);
+    margin-bottom: 4px;
+  }
+
+  .folder-desc {
+    font-size: 12px;
+    color: var(--ink-light);
+    line-height: 1.5;
+  }
+
+  /* DAY BLOCKS — itinerary */
+  .day {
+    border-left: 2px solid var(--border);
+    padding: 0 0 1.25rem 1.25rem;
+    margin-bottom: 0.25rem;
+    position: relative;
+  }
+
+  .day::before {
+    content: '';
+    position: absolute;
+    left: -5px;
+    top: 6px;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--terracotta);
+  }
+
+  .day-header {
+    margin-bottom: 0.75rem;
+  }
+
+  .day-label {
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--terracotta);
+    margin-bottom: 2px;
+  }
+
+  .day-title {
+    font-family: 'DM Serif Display', serif;
+    font-size: 1.15rem;
+    color: var(--ink);
+  }
+
+  .day-item {
+    display: grid;
+    grid-template-columns: 80px 1fr;
+    gap: 14px;
+    padding: 8px 0;
+    font-size: 13px;
+    border-top: 1px dashed var(--border);
+  }
+
+  .day-time {
+    color: var(--ink-light);
+    font-variant-numeric: tabular-nums;
+    font-size: 12px;
+    padding-top: 1px;
+  }
+
+  .day-activity {
+    color: var(--ink-mid);
+  }
+
+  .day-activity strong {
+    color: var(--ink);
+    font-weight: 600;
+  }
+
+  .day-activity a {
+    color: var(--terracotta);
+    text-decoration: none;
+    border-bottom: 1px dotted var(--terracotta);
+  }
+  .day-activity a:hover { border-bottom-style: solid; }
+
+  /* BUTTONS */
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 14px;
+    border-radius: 6px;
+    background: var(--ink);
+    color: white;
+    text-decoration: none;
+    font-size: 12.5px;
+    font-weight: 500;
+    transition: background 0.15s;
+  }
+  .btn:hover { background: var(--terracotta); }
+
+  /* PLACEHOLDER STYLING */
+  .placeholder {
+    color: var(--ink-light);
+    font-style: italic;
+  }
+
+  .placeholder-link {
+    color: var(--ink-light);
+    font-style: italic;
+    text-decoration: none;
+    border-bottom: 1px dotted var(--ink-light);
+  }
+
+  /* RESPONSIVE */
+  @media (max-width: 900px) {
+    .layout { grid-template-columns: 1fr; }
+    .sidebar {
+      position: static;
+      height: auto;
+      padding: 1.5rem;
+    }
+    .main { padding: 2rem 1.5rem 4rem; }
+    .page-title { font-size: 2.2rem; }
+    .stay-body { grid-template-columns: 1fr; gap: 4px; }
+    .stay-body dt { padding-top: 8px; }
+    .folder-grid { grid-template-columns: 1fr; }
+    .t { font-size: 12px; }
+    .t th, .t td { padding: 10px 12px; }
+  }
+</style>
+</head>
+<body>
+<div class="layout">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="sidebar-title">Trip Planner</div>
+    <div class="sidebar-sub">Shared doc — everything in one place</div>
+
+    <div class="nav-section">
+      <div class="nav-label">The plan</div>
+      <button class="nav-link active" onclick="navTo('overview')">Overview</button>
+      <button class="nav-link" onclick="navTo('calendar')">Calendar</button>
+      <button class="nav-link" onclick="navTo('route')">Route &amp; stops</button>
+      <button class="nav-link" onclick="navTo('flights')">Flights &amp; transit</button>
+      <button class="nav-link" onclick="navTo('lodging')">Lodging</button>
+      <button class="nav-link" onclick="navTo('itinerary')">Itinerary</button>
+    </div>
+
+    <div class="nav-section">
+      <div class="nav-label">Files</div>
+      <button class="nav-link" onclick="navTo('drive')">Drive folders</button>
+      <button class="nav-link" onclick="navTo('how')">How to use this</button>
+    </div>
+
+    <div class="sidebar-footer">
+      Edit the source HTML to update.<br>
+      Tickets, receipts & confirmations live in the linked Drive folders.
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <main class="main">
+
+    <!-- HEADER -->
+    <header class="page-header" id="overview">
+      <div class="page-eyebrow">Summer 2026</div>
+      <h1 class="page-title">The <em>trip</em> plan</h1>
+      <p class="page-sub">Our shared front door — every ticket, stay, and reservation in one organized place. Files live in the linked Drive folders below; this page is the map.</p>
+    </header>
+
+    <!-- CALENDAR STRIP -->
+    <section class="calendar-section" id="calendar">
+      <div class="calendar-label">Trip at a glance · Jun 10 → Jul 4 · click any day</div>
+      <div class="cal-strip" id="calStrip"></div>
+      <div class="cal-legend">
+        <span class="cal-legend-item"><span class="cal-legend-swatch" style="background:#F5DCC0; border-color:#C99966;"></span> Berlin</span>
+        <span class="cal-legend-item"><span class="cal-legend-swatch" style="background:#E5D8C2; border-color:#A89373;"></span> Travel</span>
+        <span class="cal-legend-item"><span class="cal-legend-swatch" style="background:#D2DCB8; border-color:#8AA068;"></span> Hallstatt</span>
+        <span class="cal-legend-item"><span class="cal-legend-swatch" style="background:#F4CFA8; border-color:#C28A56;"></span> Vienna</span>
+        <span class="cal-legend-item"><span class="cal-legend-swatch" style="background:#ECC0AB; border-color:#B47057;"></span> Dubrovnik</span>
+        <span class="cal-legend-item"><span class="cal-legend-swatch" style="background:#E8E0CE; border-color:#A89978; border-style:dashed;"></span> Solo (TBD)</span>
+        <span class="cal-legend-item"><span class="cal-legend-swatch" style="background:#DCC9A4; border-color:#A28858;"></span> Prague</span>
+        <span class="cal-legend-item"><span class="cal-legend-swatch" style="background:#DCC9AB; border-color:#9C8460;"></span> Home</span>
+      </div>
+    </section>
+
+    <!-- ROUTE -->
+    <section class="section" id="route">
+      <h2 class="section-title"><span class="section-num">1</span> Route &amp; stops</h2>
+      <p class="section-intro">The shape of the trip — group leg, then Nick's solo extension.</p>
+
+      <div class="route-phase-header">
+        <span class="route-phase-tag group">Group trip · Nick + Brandon + Niam</span>
+        <span class="route-phase-line"></span>
+      </div>
+
+      <div class="route">
+        <div class="route-stop">
+          <div class="route-city">Berlin</div>
+          <div class="route-dates">Jun 11 → Jun 15 · 4 nights</div>
+          <div class="route-note placeholder">Add plans here.</div>
+        </div>
+        <div class="route-stop">
+          <div class="route-city">Vienna</div>
+          <div class="route-dates">Jun 16 · day stop</div>
+          <div class="route-note placeholder">Train day from Berlin → onward to Hallstatt same day.</div>
+        </div>
+        <div class="route-stop">
+          <div class="route-city">Hallstatt</div>
+          <div class="route-dates">Jun 16 → Jun 18 · 2 nights</div>
+          <div class="route-note placeholder">Add plans here.</div>
+        </div>
+        <div class="route-stop">
+          <div class="route-city">Vienna</div>
+          <div class="route-dates">Jun 18 · pass-through</div>
+          <div class="route-note placeholder">Train arrives Wien Hbf 9:32 am from Hallstatt → flight out to Dubrovnik later same day.</div>
+        </div>
+        <div class="route-stop">
+          <div class="route-city">Dubrovnik</div>
+          <div class="route-dates">Jun 18 → Jun 23 · 5 nights</div>
+          <div class="route-note placeholder">Add plans here. Hedera Estate Jun 18–21, then second stay Jun 21–23 (TBD). Brandon flies LAX out of DBV on the 23rd at 11am — last day of the group leg.</div>
+        </div>
+      </div>
+
+      <div class="route-phase-header" style="margin-top: 2rem;">
+        <span class="route-phase-tag solo">Nick solo + Prague</span>
+        <span class="route-phase-line"></span>
+      </div>
+
+      <div class="route">
+        <div class="route-stop">
+          <div class="route-city">Budapest</div>
+          <div class="route-dates">Jun 23 → Jun 25 · 2 nights</div>
+          <div class="route-note">Grand Astoria, Rákóczi út 13 · Szimpla Kert, thermal baths, ruin bars, Great Market Hall.</div>
+        </div>
+        <div class="route-stop">
+          <div class="route-city">Prague <span style="color:var(--terracotta); font-style:italic; font-size:0.75em;">· w/ GF</span></div>
+          <div class="route-dates">Jun 25 → Jun 29 · 4 nights</div>
+          <div class="route-note placeholder">Add plans here. Fly out PRG → New York on the 29th at 12:30 pm.</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- FLIGHTS & TRANSIT -->
+    <section class="section" id="flights">
+      <h2 class="section-title"><span class="section-num">2</span> Flights &amp; transit</h2>
+      <p class="section-intro">Every ticket — linked to the PDF in Drive.</p>
+
+      <div class="table-wrap">
+        <table class="t">
+          <colgroup>
+            <col style="width: 14%;">  <!-- Who -->
+            <col style="width: 9%;">   <!-- Type -->
+            <col style="width: 26%;">  <!-- From → To -->
+            <col style="width: 14%;">  <!-- Date (widened) -->
+            <col style="width: 13%;">  <!-- Time -->
+            <col style="width: 14%;">  <!-- Ticket -->
+            <col style="width: 10%;">  <!-- Cost -->
+          </colgroup>
+          <thead>
+            <tr>
+              <th>Who</th>
+              <th>Type</th>
+              <th>From → To</th>
+              <th>Date</th>
+              <th>Time</th>
+              <th>Ticket</th>
+              <th>Cost</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr id="flt-jun10">
+              <td>Nick Baez</td>
+              <td><span class="badge badge-flight">Flight</span></td>
+              <td>LA → Berlin <span style="color:var(--ink-light); font-style:italic;">(via Frankfurt)</span></td>
+              <td>Jun 10 → 11</td>
+              <td>6:40 pm → 5:55 pm <span style="color:var(--ink-light);">(+1d)</span></td>
+              <td><a href="https://drive.google.com/file/d/1F5920Aokm7lMuazVv49t093-ZzWGeo-7/view?usp=sharing" target="_blank">View ticket →</a></td>
+              <td>—</td>
+            </tr>
+            <tr id="flt-jun15">
+              <td>Niam + 2</td>
+              <td><span class="badge badge-train">Nightjet</span></td>
+              <td>Berlin → Vienna</td>
+              <td>Jun 15 → 16</td>
+              <td>8:13 pm → 7:00 am</td>
+              <td><a href="https://drive.google.com/file/d/1V66ECZaYVqGQdyOaOH4NWraHa41UtjQ3/view?usp=sharing" target="_blank">View ticket →</a></td>
+              <td>€239.70</td>
+            </tr>
+            <tr id="flt-jun16">
+              <td>Nick, Brandon, Niam</td>
+              <td><span class="badge badge-train">Train</span></td>
+              <td>Vienna → Hallstatt</td>
+              <td>Jun 16</td>
+              <td>10:57 am</td>
+              <td><a href="https://drive.google.com/file/d/1fHwBUpQ7L7Tb1V_AeLliYkUhhTsDHa96/view?usp=sharing" target="_blank">View ticket →</a></td>
+              <td>€74.70</td>
+            </tr>
+            <tr id="flt-jun18">
+              <td>Nick, Brandon, Niam</td>
+              <td><span class="badge badge-train">Train</span></td>
+              <td>Hallstatt → Vienna</td>
+              <td>Jun 18</td>
+              <td>9:32 am</td>
+              <td><a href="https://drive.google.com/file/d/1oWWy9OGn9nQ3DT3vOA-zB1Y4BdjoMkDE/view?usp=sharing" target="_blank">View ticket →</a></td>
+              <td>€59.70</td>
+            </tr>
+            <tr id="flt-jun18b">
+              <td>Nick + 2</td>
+              <td><span class="badge badge-train">Train</span></td>
+              <td>Vienna → Vienna Airport <span style="color:var(--ink-light); font-style:italic;">(group ticket)</span></td>
+              <td>Jun 18 → 19</td>
+              <td>Valid all day</td>
+              <td><a href="https://drive.google.com/file/d/1nAGJX_ptev1cfQupGVadrKmrTYr0WizU/view?usp=sharing" target="_blank">View ticket →</a></td>
+              <td>€29.10</td>
+            </tr>
+            <tr id="flt-jun23-nick">
+              <td>Nick Baez</td>
+              <td><span class="badge badge-flight">Flight</span></td>
+              <td>Dubrovnik → Budapest</td>
+              <td>Jun 23</td>
+              <td>8:40 am → 9:55 am</td>
+              <td><a href="https://drive.google.com/file/d/1Uud-VHWdZ91_94D2P0XTfdviGdDxyIdB/view?usp=drive_link" target="_blank">View ticket →</a></td>
+              <td>€58.97</td>
+            </tr>
+            <tr id="flt-jun23">
+              <td>Brandon Xie</td>
+              <td><span class="badge badge-flight">Flight</span></td>
+              <td>Dubrovnik → LA</td>
+              <td>Jun 23</td>
+              <td>11:00 am</td>
+              <td><a href="PASTE-PDF-LINK-HERE" target="_blank" class="placeholder-link">View ticket →</a></td>
+              <td class="placeholder">$—</td>
+            </tr>
+            <tr id="flt-jun29">
+              <td>Nick Baez</td>
+              <td><span class="badge badge-flight">Flight</span></td>
+              <td>Prague → New York <span style="color:var(--ink-light); font-style:italic;">(via Toronto)</span></td>
+              <td>Jun 29</td>
+              <td>12:30 pm → 7:00 pm</td>
+              <td><a href="https://drive.google.com/file/d/1F5920Aokm7lMuazVv49t093-ZzWGeo-7/view?usp=sharing" target="_blank">View ticket →</a></td>
+              <td>—</td>
+            </tr>
+            <tr id="flt-jul4">
+              <td>Nick Baez</td>
+              <td><span class="badge badge-flight">Flight</span></td>
+              <td>New York → LA</td>
+              <td>Jul 4</td>
+              <td>4:00 pm → 6:42 pm</td>
+              <td><a href="https://drive.google.com/file/d/1F5920Aokm7lMuazVv49t093-ZzWGeo-7/view?usp=sharing" target="_blank">View ticket →</a></td>
+              <td>—</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="callout">
+        <div class="callout-icon">"</div>
+        <div class="callout-body">
+          <strong>Adding a new ticket?</strong> Upload the PDF to the <em>Tickets &amp; transit</em> Drive folder, then send the PDF + the Drive share link to Claude. Claude will read it, update this page, and hand back the new file to re-upload.
+        </div>
+      </div>
+    </section>
+
+    <!-- LODGING -->
+    <section class="section" id="lodging">
+      <h2 class="section-title"><span class="section-num">3</span> Lodging</h2>
+      <p class="section-intro">Airbnbs and hotels. One card per stay.</p>
+
+      <!-- STAY 1 -->
+      <div class="stay-card" id="stay-berlin">
+        <div class="stay-head">
+          <div class="stay-tag">Stay 01 · Berlin</div>
+          <div class="stay-name">Hostel Berlin – EastSeven</div>
+          <div class="stay-meta">Jun 11 → Jun 15 · 4 nights · 3 beds in mixed 4-bed dorm</div>
+        </div>
+        <dl class="stay-body">
+          <dt>Address</dt>
+          <dd>Schwedter Str. 7, 10119 Berlin, Germany</dd>
+
+          <dt>Booked under</dt>
+          <dd>Brandon Xie · Confirmations #65194, #65195, #65196</dd>
+
+          <dt>Contact</dt>
+          <dd>+49 173 945 7235 · <a href="mailto:info@eastseven.de">info@eastseven.de</a></dd>
+
+          <dt>Check-in</dt>
+          <dd>3:00 PM – 10:00 PM · check-in email arrives 2 days before. After 10 PM? Email ahead. Check-out 11 AM. Free luggage storage on arrival/departure days.</dd>
+
+          <dt>Confirmation</dt>
+          <dd><a href="https://drive.google.com/file/d/1oSSKbA6J_ni-e_qsuGsB_x28MyVzebG_/view?usp=sharing" target="_blank" class="placeholder-link">Link to QR code (in Drive)</a></dd>
+
+          <dt>Total</dt>
+          <dd>€545.70 · €181.90 each · non-refundable, fully prepaid</dd>
+
+          <dt>Getting there</dt>
+          <dd><strong>From BER airport (~50 min):</strong> Train (RE7, RB14, or S9) to Alexanderplatz → U2 to Senefelderplatz (2 stops) → 2-min walk to the orange building (look for "Impala" café on the corner).<br><strong>From Hbf (~20 min):</strong> U5 to Alexanderplatz → U2 to Senefelderplatz.</dd>
+
+          <dt>Notes</dt>
+          <dd>4th floor, no elevator. Cereal breakfast + coffee included 6–10 AM. Towel rental €3, padlocks €4. No guests under 18.</dd>
+        </dl>
+        <div class="stay-footer">
+          <a href="https://eastseven.de" target="_blank">→ EastSeven website</a>
+          <a href="https://www.google.com/maps/search/?api=1&query=Hostel+Berlin+EastSeven+Schwedter+Str+7+10119+Berlin" target="_blank">→ Google Maps</a>
+        </div>
+      </div>
+
+      <!-- STAY 2 -->
+      <div class="stay-card" id="stay-hallstatt">
+        <div class="stay-head">
+          <div class="stay-tag">Stay 02 · Hallstatt area</div>
+          <div class="stay-name">Penthouse with Private Sauna &amp; Panoramic Terrace</div>
+          <div class="stay-meta">Jun 16 → Jun 18 · 2 nights · 2 guests</div>
+        </div>
+        <dl class="stay-body">
+          <dt>Address</dt>
+          <dd>Primesberg 30, Bad Goisern, Upper Austria 4822, Austria <span style="color:var(--ink-light); font-style:italic;">(~10 min from Hallstatt village)</span></dd>
+
+          <dt>Host</dt>
+          <dd>Markus</dd>
+
+          <dt>Booked under</dt>
+          <dd>Niam Kothari + Nick Baez · Confirmation code <strong>HM9WSDPJ2E</strong></dd>
+
+          <dt>Check-in / out</dt>
+          <dd>Check-in 4:00 PM Tue Jun 16 · Check-out 10:00 AM Thu Jun 18</dd>
+
+          <dt>Confirmation</dt>
+          <dd><a href="https://drive.google.com/file/d/1Wham1ox9ZNL7G2s2sU3ulDHDeEpeltnV/view?usp=sharing" target="_blank">Airbnb confirmation PDF</a></dd>
+
+          <dt>Total</dt>
+          <dd>$879.44 · split between Nick + Niam</dd>
+        </dl>
+        <div class="stay-footer">
+          <a href="https://www.airbnb.com/rooms/1559408498759861915" target="_blank">→ Airbnb listing</a>
+          <a href="https://www.google.com/maps/search/?api=1&query=Primesberg+30+Bad+Goisern+Austria" target="_blank">→ Google Maps</a>
+        </div>
+      </div>
+
+      <!-- STAY 3 -->
+      <div class="stay-card" id="stay-dubrovnik1">
+        <div class="stay-head">
+          <div class="stay-tag">Stay 03 · Dubrovnik</div>
+          <div class="stay-name">Hedera Estate, Hedera A32</div>
+          <div class="stay-meta">Jun 18 → Jun 21 · 3 nights · 2 guests</div>
+        </div>
+        <dl class="stay-body">
+          <dt>Address</dt>
+          <dd>Ulica Frana Cale 11, Dubrovnik, Dubrovačko-neretvanska županija 20000, Croatia</dd>
+
+          <dt>Host</dt>
+          <dd>Antonija</dd>
+
+          <dt>Booked under</dt>
+          <dd>Niam Kothari + Nick Baez · Confirmation code <strong>HMQDBH4CK8</strong></dd>
+
+          <dt>Check-in / out</dt>
+          <dd>Check-in 3:00 PM Thu Jun 18 · Check-out 10:00 AM Sun Jun 21</dd>
+
+          <dt>Confirmation</dt>
+          <dd><a href="https://drive.google.com/file/d/1acoNieHJgc2YTreXAu79ab2QpA_mKxeC/view?usp=sharing" target="_blank">Airbnb confirmation PDF</a></dd>
+
+          <dt>Total</dt>
+          <dd>$1,160.85 · split between Nick + Niam</dd>
+        </dl>
+        <div class="stay-footer">
+          <a href="https://www.airbnb.com/rooms/49722040" target="_blank">→ Airbnb listing</a>
+          <a href="https://www.google.com/maps/search/?api=1&query=Ulica+Frana+Cale+11+Dubrovnik+Croatia" target="_blank">→ Google Maps</a>
+        </div>
+      </div>
+
+      <!-- STAY 4 -->
+      <div class="stay-card" id="stay-dubrovnik2" style="border-style: dashed; background: var(--cream);">
+        <div class="stay-head" style="background: transparent;">
+          <div class="stay-tag" style="color: var(--terracotta);">Stay 04 · Dubrovnik <span style="color: var(--ink-light); font-style: italic; letter-spacing: 0.05em;">· not booked yet</span></div>
+          <div class="stay-name" style="color: var(--ink-light); font-style: italic;">To be booked</div>
+          <div class="stay-meta">Jun 21 → Jun 23 · 2 nights</div>
+        </div>
+        <dl class="stay-body">
+          <dt>Why this exists</dt>
+          <dd>Hedera Estate ends Jun 21 at 10 AM. Brandon flies out of DBV Jun 23 at 11 AM. Need lodging for the 2 nights between.</dd>
+
+          <dt>Open questions</dt>
+          <dd style="color:var(--terracotta);">• Extend at Hedera with Antonija?<br>• Find a separate place?<br>• Resolve the "Brandon not on the booking" issue while you're at it.</dd>
+        </dl>
+      </div>
+
+      <!-- STAY 5 -->
+      <div class="stay-card" id="stay-budapest">
+        <div class="stay-head">
+          <div class="stay-tag">Stay 05 · Budapest <span style="color:var(--terracotta); font-style:italic;">· Nick solo</span></div>
+          <div class="stay-name">Grand Astoria — stylish luxury</div>
+          <div class="stay-meta">Jun 23 → Jun 25 · 2 nights · 1 guest</div>
+        </div>
+        <dl class="stay-body">
+          <dt>Address</dt>
+          <dd>Rákóczi út 13, Budapest, 1088, Hungary <span style="color:var(--ink-light); font-style:italic;">(Astoria area · District VIII border)</span></dd>
+
+          <dt>Host</dt>
+          <dd>Marianna &amp; Matyas · Superhost · 9 years hosting</dd>
+
+          <dt>Booked under</dt>
+          <dd>Nick Baez · Confirmation code <strong>HMJRTAR3RB</strong></dd>
+
+          <dt>Check-in / out</dt>
+          <dd>Check-in 3:00 PM Tue Jun 23 · Check-out 10:00 AM Thu Jun 25</dd>
+
+          <dt>Confirmation</dt>
+          <dd><a href="https://drive.google.com/file/d/1S4vDi-ZZIrGJH3NL01ESWBT0CNJwGyAq/view?usp=drive_link" target="_blank">View ticket →</a></dd>
+
+          <dt>Total</dt>
+          <dd>$224.56 · ~$112/night</dd>
+        </dl>
+        <div class="stay-footer">
+          <a href="https://www.airbnb.com/rooms/1381150404683059464" target="_blank">→ Airbnb listing</a>
+          <a href="https://www.google.com/maps/search/?api=1&query=Rakoczi+ut+13+Budapest+1088+Hungary" target="_blank">→ Google Maps</a>
+        </div>
+      </div>
+    </section>
+
+    <!-- ITINERARY -->
+    <section class="section" id="itinerary">
+      <h2 class="section-title"><span class="section-num">4</span> Itinerary</h2>
+      <p class="section-intro">Restaurants, tours, reservations — anything with a time. Travel times live in the Flights &amp; transit section above.</p>
+
+      <div class="route-phase-header">
+        <span class="route-phase-tag group">Group trip</span>
+        <span class="route-phase-line"></span>
+      </div>
+
+      <div class="day">
+        <div class="day-header">
+          <div class="day-label">Jun 11–14</div>
+          <div class="day-title">Berlin</div>
+        </div>
+        <div class="day-item">
+          <div class="day-time"><span class="placeholder">time</span></div>
+          <div class="day-activity placeholder">Add plans</div>
+        </div>
+      </div>
+
+      <div class="day">
+        <div class="day-header">
+          <div class="day-label">Jun 16–18</div>
+          <div class="day-title">Hallstatt</div>
+        </div>
+        <div class="day-item">
+          <div class="day-time"><span class="placeholder">time</span></div>
+          <div class="day-activity placeholder">Add plans</div>
+        </div>
+      </div>
+
+      <div class="day">
+        <div class="day-header">
+          <div class="day-label">Jun 18–23</div>
+          <div class="day-title">Dubrovnik</div>
+        </div>
+        <div class="day-item">
+          <div class="day-time"><span class="placeholder">time</span></div>
+          <div class="day-activity placeholder">Add plans</div>
+        </div>
+      </div>
+
+      <div class="route-phase-header" style="margin-top: 2.5rem;">
+        <span class="route-phase-tag solo">Nick solo + Prague</span>
+        <span class="route-phase-line"></span>
+      </div>
+
+      <div class="day">
+        <div class="day-header">
+          <div class="day-label">Jun 23–25</div>
+          <div class="day-title">Budapest</div>
+        </div>
+        <div class="day-item">
+          <div class="day-time"><span class="placeholder">time</span></div>
+          <div class="day-activity placeholder">Szimpla Kert, Széchenyi baths, Great Market Hall, ruin bars — add plans</div>
+        </div>
+      </div>
+
+      <div class="day">
+        <div class="day-header">
+          <div class="day-label">Jun 25–29</div>
+          <div class="day-title">Prague <span style="color:var(--terracotta); font-style:italic; font-size:0.7em; font-family:'DM Sans',sans-serif;">· w/ GF</span></div>
+        </div>
+        <div class="day-item">
+          <div class="day-time"><span class="placeholder">time</span></div>
+          <div class="day-activity placeholder">Add plans</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- DRIVE FOLDERS -->
+    <section class="section" id="drive">
+      <h2 class="section-title"><span class="section-num">5</span> Drive folders</h2>
+      <p class="section-intro">Where the actual files live — PDFs, receipts, screenshots.</p>
+
+      <div class="folder-grid">
+        <a href="https://drive.google.com/drive/folders/1ok_nh2r1qYfVx04XMa4kB_c-wav21kuJ?usp=sharing" class="folder-card">
+          <div class="folder-tag">Folder</div>
+          <div class="folder-name">Tickets &amp; transit</div>
+          <div class="folder-desc">All flight / train / bus PDFs. Name files: <code>YYYY-MM-DD_Traveler_Route.pdf</code></div>
+        </a>
+        <a href="https://drive.google.com/drive/folders/1c8he2VmdFfNQd_0addJnTLVPfaoZSsU2?usp=sharing" class="folder-card">
+          <div class="folder-tag">Folder</div>
+          <div class="folder-name">Airbnb &amp; lodging</div>
+          <div class="folder-desc">Booking confirmations, check-in instructions, host messages.</div>
+        </a>
+        <a href="https://drive.google.com/drive/folders/1jb0xF4KIyxG7-mTNsmGp6c63ysiviXaB?usp=sharing" class="folder-card">
+          <div class="folder-tag">Folder</div>
+          <div class="folder-name">Flights</div>
+          <div class="folder-desc">Flight-specific PDFs, boarding passes, and airline confirmations.</div>
+        </a>
+      </div>
+    </section>
+
+    <!-- HOW TO USE -->
+    <section class="section" id="how">
+      <h2 class="section-title"><span class="section-num">6</span> How to use this</h2>
+      <p class="section-intro">Workflow for the group.</p>
+
+      <div class="callout">
+        <div class="callout-icon">1</div>
+        <div class="callout-body">
+          <strong>Book something?</strong> Drop the PDF (or screenshot) into the correct Drive folder. Name it clearly so anyone can find it.
+        </div>
+      </div>
+      <div class="callout">
+        <div class="callout-icon">2</div>
+        <div class="callout-body">
+          <strong>Want it to show up on this page?</strong> Send the PDF + Drive share link to Claude — it'll read the file, update the page, and hand back a new HTML to re-upload.
+        </div>
+      </div>
+      <div class="callout">
+        <div class="callout-icon">3</div>
+        <div class="callout-body">
+          <strong>Need something on the road?</strong> The Drive folders work offline on your phone if you star them in the Google Drive app ahead of time. Do this before leaving wifi.
+        </div>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<script>
+  function navTo(id) {
+    const el = document.getElementById(id);
+    if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
+    event.currentTarget.classList.add('active');
+  }
+
+  // Auto-highlight active section on scroll
+  const sections = document.querySelectorAll('.section, .page-header');
+  const navLinks = document.querySelectorAll('.nav-link');
+  const idToLink = {};
+  navLinks.forEach(l => {
+    const match = l.getAttribute('onclick').match(/navTo\('(.+?)'\)/);
+    if (match) idToLink[match[1]] = l;
+  });
+
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        const id = entry.target.id;
+        if (idToLink[id]) {
+          navLinks.forEach(l => l.classList.remove('active'));
+          idToLink[id].classList.add('active');
+        }
+      }
+    });
+  }, { rootMargin: '-30% 0px -60% 0px' });
+
+  sections.forEach(s => observer.observe(s));
+
+  // ============================================================
+  // CALENDAR STRIP
+  // ============================================================
+  // Each entry: { date, city, label?, target?, icon? }
+  // - city: drives the color class (.city-{x})
+  // - target: optional element ID to scroll to on click
+  // - icon: small unicode marker (✈ for flight, ⊟ for train)
+  const tripDays = [
+    { date: 'Jun 10', city: 'train',     label: 'Fly',    target: 'flt-jun10', icon: '✈' },
+    { date: 'Jun 11', city: 'berlin',    label: 'Berlin', target: 'stay-berlin' },
+    { date: 'Jun 12', city: 'berlin',    label: 'Berlin', target: 'stay-berlin' },
+    { date: 'Jun 13', city: 'berlin',    label: 'Berlin', target: 'stay-berlin' },
+    { date: 'Jun 14', city: 'berlin',    label: 'Berlin', target: 'stay-berlin' },
+    { date: 'Jun 15', city: 'train',     label: 'Train',  target: 'flt-jun15', icon: '⊟' },
+    { date: 'Jun 16', city: 'hallstatt', label: 'Halsta', target: 'stay-hallstatt', icon: '⊟' },
+    { date: 'Jun 17', city: 'hallstatt', label: 'Halsta', target: 'stay-hallstatt' },
+    { date: 'Jun 18', city: 'train',     label: 'Travel', target: 'flt-jun18', icon: '⊟✈' },
+    { date: 'Jun 19', city: 'dubrovnik', label: 'DBV',    target: 'stay-dubrovnik1' },
+    { date: 'Jun 20', city: 'dubrovnik', label: 'DBV',    target: 'stay-dubrovnik1' },
+    { date: 'Jun 21', city: 'dubrovnik', label: 'DBV',    target: 'stay-dubrovnik2' },
+    { date: 'Jun 22', city: 'dubrovnik', label: 'DBV',    target: 'stay-dubrovnik2' },
+    { date: 'Jun 23', city: 'solo',      label: 'BUD',    target: 'flt-jun23-nick', icon: '✈' },
+    { date: 'Jun 24', city: 'solo',      label: 'BUD',    target: 'stay-budapest' },
+    { date: 'Jun 25', city: 'prague',    label: 'BUD→PRG', target: 'stay-budapest' },
+    { date: 'Jun 26', city: 'prague',    label: 'Prague' },
+    { date: 'Jun 27', city: 'prague',    label: 'Prague' },
+    { date: 'Jun 28', city: 'prague',    label: 'Prague' },
+    { date: 'Jun 29', city: 'prague',    label: 'Fly',    target: 'flt-jun29', icon: '✈' },
+    { date: 'Jun 30', city: 'home',      label: 'NY' },
+    { date: 'Jul 1',  city: 'home',      label: 'NY' },
+    { date: 'Jul 2',  city: 'home',      label: 'NY' },
+    { date: 'Jul 3',  city: 'home',      label: 'NY' },
+    { date: 'Jul 4',  city: 'home',      label: 'Home',   target: 'flt-jul4', icon: '✈' },
+  ];
+
+  function buildCalendar() {
+    const strip = document.getElementById('calStrip');
+    if (!strip) return;
+
+    tripDays.forEach(day => {
+      const [mo, num] = day.date.split(' ');
+      const isLink = !!day.target;
+      const el = document.createElement(isLink ? 'a' : 'div');
+      el.className = `cal-day city-${day.city}` + (isLink ? ' is-link' : '');
+      if (isLink) el.href = '#' + day.target;
+
+      el.innerHTML = `
+        <div class="cal-day-top">
+          <div class="cal-day-num">${num}</div>
+          <div class="cal-day-mo">${mo}</div>
+        </div>
+        <div class="cal-day-icons">${day.icon || ''}</div>
+        <div class="cal-day-tag">${day.label || ''}</div>
+      `;
+
+      if (isLink) {
+        el.addEventListener('click', (e) => {
+          e.preventDefault();
+          const target = document.getElementById(day.target);
+          if (!target) return;
+
+          target.scrollIntoView({ behavior: 'smooth', block: 'center' });
+
+          // Flash effect
+          if (target.tagName === 'TR') {
+            target.classList.remove('flash-row');
+            void target.offsetWidth; // restart animation
+            target.classList.add('flash-row');
+          } else if (target.classList.contains('stay-card')) {
+            target.classList.remove('flash-card');
+            void target.offsetWidth;
+            target.classList.add('flash-card');
+          }
+        });
+      }
+
+      strip.appendChild(el);
+    });
+  }
+
+  buildCalendar();
+</script>
+
+</body>
+</html>
